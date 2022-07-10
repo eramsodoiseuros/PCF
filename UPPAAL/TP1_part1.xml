@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>chan detected, minorCross, majorCross, minorStop, majorStop, timeOut;</declaration>
+	<template>
+		<name>MinorLight</name>
+		<declaration>clock delay, interval;</declaration>
+		<location id="id0" x="-179" y="-51">
+			<name x="-238" y="-59">green</name>
+			<label kind="invariant" x="-161" y="-59">interval &lt;= 30</label>
+		</location>
+		<location id="id1" x="8" y="-229">
+			<name x="-9" y="-263">yellow</name>
+			<label kind="invariant" x="-34" y="-212">interval &lt;= 5</label>
+		</location>
+		<location id="id2" x="-179" y="-229">
+			<label kind="invariant" x="-280" y="-238">delay &lt;= 1</label>
+		</location>
+		<location id="id3" x="204" y="-229">
+			<label kind="invariant" x="229" y="-238">delay &lt;= 1</label>
+		</location>
+		<location id="id4" x="204" y="-42">
+			<name x="221" y="-51">red</name>
+		</location>
+		<location id="id5" x="17" y="76">
+			<label kind="invariant" x="-17" y="93">delay &lt;= 1</label>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-153" y="17">delay == 1</label>
+			<label kind="assignment" x="-153" y="34">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="119" y="17">minorCross!</label>
+			<label kind="assignment" x="119" y="34">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="guard" x="212" y="-161">delay == 1</label>
+			<label kind="synchronisation" x="212" y="-144">minorStop!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="68" y="-272">interval == 5</label>
+			<label kind="assignment" x="68" y="-255">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-127" y="-272">delay == 1</label>
+			<label kind="assignment" x="-127" y="-255">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-289" y="-136">interval == 30</label>
+			<label kind="synchronisation" x="-246" y="-170">timeOut!</label>
+			<label kind="assignment" x="-255" y="-153">delay := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">MajorLight</name>
+		<declaration>clock delay, interval;</declaration>
+		<location id="id6" x="-459" y="-68">
+			<name x="-518" y="-76">green</name>
+		</location>
+		<location id="id7" x="-272" y="-246">
+			<name x="-289" y="-280">yellow</name>
+			<label kind="invariant" x="-314" y="-229">interval &lt;= 5</label>
+		</location>
+		<location id="id8" x="-459" y="-246">
+			<label kind="invariant" x="-552" y="-255">delay &lt;= 1</label>
+		</location>
+		<location id="id9" x="-76" y="-246">
+			<label kind="invariant" x="-59" y="-255">delay &lt;= 1</label>
+		</location>
+		<location id="id10" x="-76" y="-59">
+			<name x="-59" y="-68">red</name>
+		</location>
+		<location id="id11" x="-272" y="34">
+			<label kind="invariant" x="-306" y="51">delay &lt;= 1</label>
+		</location>
+		<init ref="id6"/>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-433" y="-9">delay == 1</label>
+			<label kind="assignment" x="-433" y="8">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-178" y="-8">majorCross!</label>
+			<label kind="assignment" x="-178" y="9">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-68" y="-153">delay == 1</label>
+			<label kind="synchronisation" x="-68" y="-170">majorStop!</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-204" y="-289">interval == 5</label>
+			<label kind="assignment" x="-204" y="-272">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-408" y="-272">delay == 1</label>
+			<label kind="assignment" x="-408" y="-289">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-569" y="-153">interval &gt;= 30</label>
+			<label kind="synchronisation" x="-535" y="-187">detected?</label>
+			<label kind="assignment" x="-535" y="-170">delay := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Sensor</name>
+		<location id="id12" x="-331" y="-8">
+		</location>
+		<location id="id13" x="-153" y="-8">
+			<name x="-136" y="-17">carsDetected</name>
+		</location>
+		<init ref="id12"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-280" y="-127">timeOut?</label>
+			<nail x="-246" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-280" y="-34">detected!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Road</name>
+		<declaration>clock interval;</declaration>
+		<location id="id14" x="-187" y="-25">
+		</location>
+		<location id="id15" x="-42" y="-136">
+			<label kind="invariant" x="-76" y="-170">interval &lt;= 1</label>
+		</location>
+		<location id="id16" x="102" y="-25">
+		</location>
+		<location id="id17" x="-42" y="76">
+			<label kind="invariant" x="-76" y="93">interval &lt;= 1</label>
+		</location>
+		<init ref="id14"/>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-187" y="51">interval &lt;= 1</label>
+			<label kind="synchronisation" x="-187" y="34">majorCross?</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="34" y="25">minorStop?</label>
+			<label kind="assignment" x="34" y="42">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="guard" x="34" y="-93">interval &lt;= 1</label>
+			<label kind="synchronisation" x="34" y="-110">minorCross?</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-204" y="-110">majorStop?</label>
+			<label kind="assignment" x="-204" y="-93">interval := 0</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Ma = MajorLight();
+Mi = MinorLight();
+S = Sensor();
+R = Road();
+
+// List one or more processes to be composed into a system.
+system Ma, Mi, S, R;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Mi.green</formula>
+			<comment>(1) the minor light can go green</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Ma.red</formula>
+			<comment>(2) the major road light can go red</comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>(3) the system never enters in a deadlock state</comment>
+		</query>
+		<query>
+			<formula>A[] not (Mi.green and Ma.green)</formula>
+			<comment>(4) the minor-road and major-road lights cannot be green at the same time</comment>
+		</query>
+		<query>
+			<formula>S.carsDetected --&gt; Mi.green</formula>
+			<comment>(5) if there are cars waiting they will eventually have green light</comment>
+		</query>
+		<query>
+			<formula>A[] not ((Mi.yellow or Mi.green) and (Ma.green or Ma.yellow))</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

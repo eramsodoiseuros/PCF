@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int N = 3;         // # semaphores
+const int HIGH = 1, LOW = 0, NONE = 2;
+typedef int[0,N-1] id_t;
+
+
+chan deQ[3], // dequeue highQ,lowQ
+     reset[N],
+     non_existent[N], low[N], high[N], 
+     non_existent_ok[N], low_ok[N], high_ok[N], 
+     time_out[N], 
+     lock, unlock, 
+     reset_ok, reset_fail;
+
+
+int max(int a, int b)
+{
+    return (a&gt;b ? a : b);
+}</declaration>
+	<template>
+		<name>Light</name>
+		<parameter>const id_t id</parameter>
+		<declaration>clock delay, interval;
+int s;
+int[0, 2] i;
+
+</declaration>
+		<location id="id0" x="-264" y="42">
+			<name x="-289" y="59">green</name>
+			<label kind="invariant" x="-314" y="76">interval &lt;= 10</label>
+		</location>
+		<location id="id1" x="33" y="-229">
+			<name x="16" y="-263">yellow</name>
+			<label kind="invariant" x="-9" y="-212">interval &lt;= 5</label>
+		</location>
+		<location id="id2" x="-170" y="-229">
+			<label kind="invariant" x="-203" y="-204">delay &lt;= 1</label>
+		</location>
+		<location id="id3" x="229" y="-229">
+			<label kind="invariant" x="254" y="-238">delay &lt;= 1</label>
+		</location>
+		<location id="id4" x="229" y="-42">
+			<name x="246" y="-51">red</name>
+		</location>
+		<location id="id5" x="0" y="42">
+			<label kind="invariant" x="-34" y="59">delay &lt;= 1</label>
+		</location>
+		<location id="id6" x="135" y="42">
+			<name x="135" y="59">red_waiting</name>
+		</location>
+		<location id="id7" x="-425" y="-102">
+			<name x="-527" y="-110">green_reset</name>
+			<urgent/>
+		</location>
+		<location id="id8" x="-425" y="-229">
+			<name x="-451" y="-263">green_</name>
+			<label kind="invariant" x="-468" y="-280">interval &lt;= s</label>
+		</location>
+		<location id="id9" x="229" y="-127">
+			<urgent/>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-374" y="-170">i==NONE</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="237" y="-102">deQ[i]!</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id9"/>
+			<label kind="guard" x="246" y="-204">delay == 1</label>
+			<label kind="synchronisation" x="246" y="-187">unlock!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-332" y="-289">interval == s</label>
+			<label kind="synchronisation" x="-332" y="-272">time_out[id]!</label>
+			<label kind="assignment" x="-332" y="-255">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-501" y="-178">reset_fail?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-451" y="51">reset_ok?</label>
+			<nail x="-425" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-256" y="-73">interval == 10 &amp;&amp; i!=NONE</label>
+			<label kind="synchronisation" x="-255" y="-93">reset[id]!</label>
+			<label kind="assignment" x="-255" y="-51">interval := 0, 
+s = max(s-10, 15)</label>
+			<nail x="-264" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="67" y="51">lock!</label>
+			<label kind="assignment" x="59" y="68">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="101" y="-85">high_ok[id]?</label>
+			<label kind="assignment" x="101" y="-68">s = 30, i = HIGH</label>
+			<nail x="135" y="-42"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="237" y="34">low_ok[id]?</label>
+			<label kind="assignment" x="237" y="51">s = 20, i = LOW</label>
+			<nail x="229" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="153" y="-17">non_existent_ok[id]?</label>
+			<label kind="assignment" x="153" y="0">s = 15, i = NONE</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-153" y="51">delay == 1</label>
+			<label kind="assignment" x="-153" y="68">interval := 0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="93" y="-272">interval == 5</label>
+			<label kind="assignment" x="93" y="-255">delay := 0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-119" y="-255">delay == 1</label>
+			<label kind="assignment" x="-119" y="-272">interval := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Sensor</name>
+		<parameter>const id_t id</parameter>
+		<location id="id10" x="-620" y="-272">
+		</location>
+		<location id="id11" x="-323" y="-272">
+			<name x="-382" y="-255">non_existent_traffic</name>
+		</location>
+		<location id="id12" x="-153" y="-272">
+			<name x="-161" y="-255">low_traffic</name>
+		</location>
+		<location id="id13" x="-25" y="-272">
+			<name x="0" y="-272">high_traffic</name>
+		</location>
+		<init ref="id10"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-602" y="-510">time_out[id]?</label>
+			<nail x="-25" y="-493"/>
+			<nail x="-620" y="-493"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-348" y="-17">high[id]!</label>
+			<nail x="-620" y="-34"/>
+			<nail x="-25" y="-26"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-467" y="-340">time_out[id]?</label>
+			<nail x="-425" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-408" y="-433">time_out[id]?</label>
+			<nail x="-365" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-382" y="-93">low[id]!</label>
+			<nail x="-357" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-527" y="-289">non_existent[id]!</label>
+		</transition>
+	</template>
+	<template>
+		<name>Road</name>
+		<declaration>clock interval;</declaration>
+		<location id="id14" x="-34" y="-102">
+			<name x="-119" y="-111">unlocked</name>
+			<label kind="invariant" x="-127" y="-85">interval &lt;= 2</label>
+		</location>
+		<location id="id15" x="229" y="-102">
+			<name x="246" y="-111">locked</name>
+		</location>
+		<init ref="id14"/>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="60" y="-9">unlock?</label>
+			<label kind="assignment" x="60" y="8">interval := 0</label>
+			<nail x="94" y="-9"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="guard" x="51" y="-221">interval == 2</label>
+			<label kind="synchronisation" x="51" y="-238">lock?</label>
+			<nail x="94" y="-196"/>
+		</transition>
+	</template>
+	<template>
+		<name>Manager</name>
+		<declaration>id_t highQ[N];
+int[0,N] lenHigh = 0;
+
+id_t lowQ[N];
+int[0,N] lenLow = 0;
+
+int[-2, 1] waitlist[N]; // -2 = not was in Q; -1 = was in Q; 0 1 = low, high = wants to get in next Q
+bool waiting = false;
+
+int[-1, N-1] none = -1; // if a semaphore is green or yellow with non existent traffic
+
+void initwaitlist()
+{
+    for (j : int[0, N-1]) waitlist[j] = -2;
+}
+
+// Put an element at the end of the queue
+void enqueue(id_t&amp; list[N], int[0, N]&amp; len, id_t element, int[0,1] traffic_state)
+{
+    if (waitlist[element] == -2)
+    {    
+        list[len++] = element;
+        waitlist[element] = -1;
+    }
+    else if (waitlist[element] == -1)
+    {
+        waitlist[element] = traffic_state;
+        waiting = true;
+    }
+}
+
+// dequeue given list with length
+void dequeuelist(id_t&amp; list[N], int[0, N]&amp; len)
+{
+    int i = 0;
+    len -= 1;
+    while (i &lt; len)
+    {
+        list[i] = list[i + 1];
+        i++;
+    }
+    list[i] = 0;
+
+    if (lenHigh + lenLow == 0)
+    {
+        for (j : int[0, N-1])
+        {
+            if (waitlist[j] == LOW){
+                lowQ[lenLow++] = j; waitlist[j] = -1;
+            
+            } 
+            else if (waitlist[j] == HIGH){
+                highQ[lenHigh++] = j; waitlist[j] = -1;
+            }
+            else
+                waitlist[j] = -2;
+        }
+        waiting = false;
+    }
+}
+
+// dequeue one of the Qs according with int received
+void dequeue(int[0,2] i){
+    if (i == LOW)
+        dequeuelist(lowQ, lenLow); 
+    else if (i == HIGH)
+        dequeuelist(highQ, lenHigh); 
+    else
+        none = -1;
+}
+
+// Returns the front element of the queue
+id_t first(id_t&amp; list[N])
+{
+   return list[0];
+}
+
+// Returns the last element of the queue
+id_t last(id_t&amp; list[N], int[0, N]&amp; len)
+{
+   return list[len - 1];
+}
+
+</declaration>
+		<location id="id16" x="-4641" y="-4471">
+		</location>
+		<location id="id17" x="-4284" y="-4471">
+			<urgent/>
+		</location>
+		<location id="id18" x="-4913" y="-4471">
+			<urgent/>
+		</location>
+		<init ref="id18"/>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="select" x="-4802" y="-4870">u : id_t</label>
+			<label kind="guard" x="-4802" y="-4853">none == -1 &amp;&amp; !waiting &amp;&amp; lenHigh + lenLow == 0</label>
+			<label kind="synchronisation" x="-4802" y="-4836">non_existent[u]?</label>
+			<label kind="assignment" x="-4802" y="-4819">none = u</label>
+			<nail x="-4360" y="-4794"/>
+			<nail x="-4930" y="-4794"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-4709" y="-4309">none!=-1</label>
+			<label kind="synchronisation" x="-4709" y="-4292">non_existent_ok[none]!</label>
+			<nail x="-4709" y="-4318"/>
+			<nail x="-4564" y="-4318"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id16"/>
+			<label kind="assignment" x="-4845" y="-4488">initwaitlist()</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="select" x="-4887" y="-4420">u : int[0, 2]</label>
+			<label kind="synchronisation" x="-4886" y="-4403">deQ[u]?</label>
+			<label kind="assignment" x="-4886" y="-4386">dequeue(u)</label>
+			<nail x="-4802" y="-4360"/>
+			<nail x="-4802" y="-4394"/>
+			<nail x="-4802" y="-4437"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-4488" y="-4369">lenHigh+lenLow  &gt; 1 || waiting</label>
+			<label kind="synchronisation" x="-4343" y="-4386">reset_fail!</label>
+			<nail x="-4284" y="-4394"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-4505" y="-4573">lenHigh+lenLow ==1 &amp;&amp; !waiting</label>
+			<label kind="synchronisation" x="-4335" y="-4590">reset_ok!</label>
+			<nail x="-4284" y="-4547"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="select" x="-4411" y="-4505">u : id_t</label>
+			<label kind="synchronisation" x="-4411" y="-4488">reset[u]?</label>
+			<nail x="-4624" y="-4471"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-4726" y="-4164">lenHigh == 0 &amp;&amp; lenLow &gt; 0 &amp;&amp; none == -1</label>
+			<label kind="synchronisation" x="-4726" y="-4181">low_ok[lowQ[0]]!</label>
+			<nail x="-4913" y="-4190"/>
+			<nail x="-4360" y="-4190"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-4700" y="-4249">lenHigh &gt; 0 &amp;&amp; none==-1</label>
+			<label kind="synchronisation" x="-4700" y="-4232">high_ok[highQ[0]]!</label>
+			<nail x="-4785" y="-4258"/>
+			<nail x="-4488" y="-4258"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="select" x="-4743" y="-4777">u : id_t</label>
+			<label kind="synchronisation" x="-4743" y="-4760">high[u]?</label>
+			<label kind="assignment" x="-4743" y="-4743">enqueue(highQ, lenHigh, u, HIGH)</label>
+			<nail x="-4471" y="-4717"/>
+			<nail x="-4794" y="-4717"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="select" x="-4743" y="-4700">u : id_t</label>
+			<label kind="synchronisation" x="-4743" y="-4683">low[u]?</label>
+			<label kind="assignment" x="-4743" y="-4667">enqueue(lowQ, lenLow, u, LOW)</label>
+			<nail x="-4564" y="-4641"/>
+			<nail x="-4709" y="-4641"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+L0 = Light(0);
+L1 = Light(1);
+L2 = Light(2);
+S0 = Sensor(0);
+S1 = Sensor(1);
+S2 = Sensor(2);
+R = Road();
+M = Manager();
+
+// List one or more processes to be composed into a system.
+system M, R, L0, L1, L2, S0, S1, S2;
+    </system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock</formula>
+			<comment>(3) the system never enters in a deadlock state</comment>
+		</query>
+		<query>
+			<formula>(L0.red_waiting) --&gt; L0.green</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] not ((L0.yellow or L0.green) and (L1.green or L1.yellow) and (L2.green or L2.yellow))</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
